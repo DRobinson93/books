@@ -16,7 +16,7 @@ class CreateBooksTable extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->string('api_id');
             $table->foreignId('user_id');
-            $table->smallInteger('rank');
+            $table->integer('rank');
             $table->timestamps();
             $table->primary(['api_id', 'user_id']);
         });

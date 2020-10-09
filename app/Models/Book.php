@@ -23,4 +23,17 @@ class Book extends Model
     function user(){
         return $this->belongsTo('App\Models\User');
     }
+
+    /**
+     * The attributes that should be hidden for arrays.
+     * all of these are not needed for now
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'user_id',
+        'updated_at',
+        'created_at',
+        'rank'
+    ];
 }

@@ -14,11 +14,13 @@ trait HelperForApis {
 
     private function generateApiUrl(String $id = null, String $search = ""){
 
-        $url = "https://www.googleapis.com/books/v1/volumes?projection=lite&key=".env('API_KEY');
+        $url = "https://www.googleapis.com/books/v1/volumes";
         if(!is_null($id)){
-            $url .= "&id=".$id;
+            //https://www.googleapis.com/books/v1/volumes/zyTCAlFPjgYC?key=yourAPIKey
+            $url .= "/".$id;
         }else{
-            $url .= "&q=".$search;
+            $url .= "?q=".$search;
+            $url.="&projection=lite&key=".env('API_KEY');
         }
         return $url;
     }
@@ -30,7 +32,7 @@ trait HelperForApis {
         return json_decode($response, true);
     }
 
-    public function searchApiReturnBooks(String $str, Int $limit){
+    public function searchApiReturnBooks(String $str, Int $limit = 0){
         $apiResults =  $this->getObjFromUrl(
             $this->generateApiUrl(null, $str)
         );
@@ -38,6 +40,24 @@ trait HelperForApis {
             return array_slice($apiResults['items'], 0, $limit);
         }
         return $apiResults['items'];
+    }
+
+    public function searchApiReturnBook(String $id){
+        $apiResults =  $this->getObjFromUrl(
+            $this->generateApiUrl($id)
+        );
+        return $this->getDataFromApiResult($apiResults);
+    }
+
+    public function getDataFromApiResult(Array $apiResults){
+        $info = $apiResults['volumeInfo'];
+        return [
+            'id'=>$apiResults['id'],
+            'title'=>$info['title'],
+            'authors'=>$info['authors'] ?? [],
+            'description'=>$info['description'] ?? '',
+            'link' =>$info['previewLink']
+        ];
     }
 
 }

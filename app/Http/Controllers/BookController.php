@@ -3,61 +3,71 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Traits\HelperForApis;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Interfaces\QueryBook;
 
 class BookController extends Controller
 {
+    use HelperForApis;
+    protected QueryBook $queryBook;
+    public function __construct(QueryBook $queryBook)
+    {
+        $this->queryBook = $queryBook;
+    }
     /**
-     * Display a listing of the resource.
+     * return all book api ids for the auth user
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        //
+        return response(Auth::user()->books()->orderBy('rank')->get()->pluck('api_id')->toArray());
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * truncate the current settings and insert the new ones.
+     * this updates the order and accounts for add/delete all in one
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        $authUserId = Auth::user()->id;
+        Book::where('user_id', $authUserId)->delete();
+        foreach($request->apiIds as $rank => $apiId){
+            $book = new Book([
+                'api_id' =>$apiId,
+                'rank' =>$rank,
+                'user_id' =>$authUserId
+            ]);
+            $book->save();
+        }
+        return response(true);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param String $apiKey
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Book $book)
+    public function show(String $apiKey)
     {
-        //
+        return response()->json($this->queryBook->getById($apiKey));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * search for book
      *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param String $searchTxt
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Book $book)
+    public function search(String $searchTxt)
     {
-        //
+        return response()->json($this->queryBook->search($searchTxt));
     }
 
     /**

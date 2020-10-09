@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $users = User::factory()->count(rand(0,2))->create();
+        $users = User::factory()->count(rand(1,4))->create();
         $users->each(function(User $user) {
             //foreach user, enter in books from the google api
-            $apiBooksData = $this->searchApiReturnBooks('surf', rand(0,10));//a word I know returns results
+            $apiBooksData = $this->searchApiReturnBooks('surf', rand(2,10));//a word I know returns results
             foreach($apiBooksData as $index=> $apiBook){
                 $book = Book::factory()->make([
                     'api_id' => $apiBook['id'],

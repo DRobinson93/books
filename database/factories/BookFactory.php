@@ -22,7 +22,8 @@ class BookFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'api_id' => $this->faker->unique()->word(),
+            'rank' => $this->faker->unique()->randomNumber()
         ];
     }
 }
